@@ -5,7 +5,7 @@ const authValidator = require('../utils/auth');
 
 // tous le monde peut visualiser les contacts
 router.route('/')
-    .get(authValidator.isAuth(),async (req, res) => {
+    .get(authValidator.isAdmin(),async (req, res) => {
         const contacts = await contactController.getAll(req.auth);
         if (!contacts) {
             res.status(404).json();
@@ -14,8 +14,8 @@ router.route('/')
     })
 
 // l'ajouter de contacts est limité uniquement à l'admin
-    .put(authValidator.isAuth(),async (req, res) => {
-        const new_contact = await contactController.add(req.body,  req.auth.id);
+    .put(async (req, res) => {
+        const new_contact = await contactController.add(req.body);
         if (!new_contact) {
             res.status(404).json();
         }
@@ -26,7 +26,7 @@ router.route('/')
 
 
 router.route('/:id')
-    .get(async (req, res) => {
+    .get(authValidator.isAdmin(),async (req, res) => {
         const contact = await contactController.getById(req.params.id);
        
         if (!contact) {

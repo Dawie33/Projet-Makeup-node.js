@@ -3,7 +3,7 @@ const db = require('../utils/db');
 
 // la fonction getall permet de visualiser tous les utilisateurs
 const getAll = async () => {
-    const [users, err] = await db.query("SELECT first_name,name,telephone,adresse,email FROM users");
+    const [users, err] = await db.query("SELECT * FROM users");
     return users;
 };
 

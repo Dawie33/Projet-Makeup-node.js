@@ -7,7 +7,7 @@ const db = require('../utils/db');
 const getAll = async (auth) => {
 
     if (auth.roles == 'admin') {
-    const [response, err] = await db.query("SELECT name, first_name, prestation,date,adress,people_number, event email FROM reservations");
+    const [response, err] = await db.query("SELECT * FROM reservations");
     const reservations = [];
         for (let reservation of response) {
             reservation.users = await findUsersById(reservation.id);
@@ -16,7 +16,7 @@ const getAll = async (auth) => {
         return reservations; 
         
     } else {
-        const [response, err] = await db.query("SELECT name, first_name, prestation,date,adress,people_number, event email  FROM reservations WHERE id_users = ?", [auth.id]);
+        const [response, err] = await db.query("SELECT name, first_name, prestation,date,adress,people_number, description  FROM reservations WHERE id_users = ?", [auth.id]);
         const reservations = [];
         for (let reservation of response) {
             reservation.users = await findUsersById(reservation.id);
@@ -39,8 +39,8 @@ const getById = async (id) => {
 // fonction add pour ajouter une reservation
 const add = async (data, id_users) => {
 
-    const [req, err] = await db.query("INSERT INTO reservations ( name, first_name,prestation,date,adress,people_number, event, id_users ) VALUES (?,?,?,?,?,?,?,?)", 
-    [data.name,data.first_name, data.prestation, data.date, data.adress, data.people_number, data.event,id_users]);
+    const [req, err] = await db.query("INSERT INTO reservations ( name, first_name,prestation,date,adress,people_number, description, id_users ) VALUES (?,?,?,?,?,?,?,?)", 
+    [data.name,data.first_name, data.prestation, data.date, data.adress, data.people_number, data.description,id_users]);
     if (!req) {
         return null;
     // } else {
@@ -66,14 +66,14 @@ const update = async (id, data) => {
         } else {
             password = reservation.password;
         }
-        const [req, err] = await db.query("UPDATE reservations SET name=?, first_name=?,date = ?, adress = ?, people_number=?, event=?  WHERE id = ? LIMIT 1", 
+        const [req, err] = await db.query("UPDATE reservations SET name=?, first_name=?,date = ?, adress = ?, people_number=?, description=?  WHERE id = ? LIMIT 1", 
         [
             data.name || reservation.name,
             data.first_name || reservation.first_name,
             data.date || reservation.date, 
             data.adress || reservation.adress, 
             data.people_number || reservation.people_number, 
-            data.event|| reservation.event, 
+            data.description|| reservation.description, 
             
             id
         ]);
