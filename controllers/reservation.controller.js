@@ -1,9 +1,7 @@
-const bcrypt = require('bcrypt');
+
 const db = require('../utils/db');
 
 
-
-// la fonction getall permet de visualiser toute les reservations
 const getAll = async (auth) => {
 
     if (auth.roles == 'admin') {
@@ -26,69 +24,55 @@ const getAll = async (auth) => {
     }
 };
 
-
-// la fonction getbyid permet de visualiser les reservations par son ID
 const getById = async (id) => {
+
     const [reservation, err] = await db.query("SELECT * FROM reservations WHERE id = ?", [id]);
     if (!reservation || reservation.length == 0) {
         return null;
     }
-  
     return reservation[0];
 };
-// fonction add pour ajouter une reservation
-const add = async (data, id_users) => {
 
+const add = async (data, id_users) => {
+    // jutilise la requête SQL insert into pour insérer les données dans la table réservation 
+    // la constante db me permet de récupérer toute les données de connexion à ma BDD
     const [req, err] = await db.query("INSERT INTO reservations ( name, first_name,prestation,date,adress,people_number, description, id_users ) VALUES (?,?,?,?,?,?,?,?)", 
     [data.name,data.first_name, data.prestation, data.date, data.adress, data.people_number, data.description,id_users]);
     if (!req) {
         return null;
-    // } else {
-    //     for (let prestation of data.prestations) {
-    //         const [reqPrestation, err] = await db.query("INSERT INTO reserver (id_prestations, id_reservations) VALUES (?, ?)", [req.insertId, prestation]);
-    //     }
     }
+     // Une fois la résa ajoutée en base, j'appelle getById qui permet d'aller
+    // récupérer en base la résa nouvellement créée, sans réécrire la fonction "SELECT * FROM reservations"
     return getById(req.insertId);
 
 };
 
-// permet à l'administrateur de modifier une presatation
+// permet à l'administrateur de modifier une reservation
 const update = async (id, data) => {
-   
+    // je récupère ma réservation par son id en utilisant la fonction getById, fonction qui utilise la requête SQL "SELECT * FROM reservations WHERE id = ?"   
     const reservation = await getById(id);
     if (!reservation) {
         return null;
     } else {
-        let password;
-        
-        if (data.password) {
-            password = await bcrypt.hash(data.password, 10);
-        } else {
-            password = reservation.password;
-        }
-        const [req, err] = await db.query("UPDATE reservations SET name=?, first_name=?,date = ?, adress = ?, people_number=?, description=?  WHERE id = ? LIMIT 1", 
+        // jutilise la requête SQL UPDATE pour modifier les champs 
+        // la constante db me permet de récupérer toute les données de connexion à ma BDD
+        const [req, err] = await db.query("UPDATE reservations SET name=?, first_name=?,prestation=?, date = ?, adress = ?, people_number=?, description=?  WHERE id = ? LIMIT 1", 
         [
+        // j'ulise le 'ou' pour indiquer que la modification de tous les champs n'est pas obligatoire. par exemple soit je modifie la donnée date ou bien je conserve la donnée date et je modifie un autre champs.
             data.name || reservation.name,
             data.first_name || reservation.first_name,
+            data.prestation || reservation.prestation,
             data.date || reservation.date, 
             data.adress || reservation.adress, 
             data.people_number || reservation.people_number, 
             data.description|| reservation.description, 
-            
             id
         ]);
-        if (data.prestations) {
-            const [reqDelete, err] = await db.query("DELETE FROM reserver WHERE id_reservations = ?", [id]);
-            if (reqDelete) {
-                for (let prestation of data.prestations) {
-                    const [reqPrestation, err] = await db.query("INSERT INTO reserver (id_reservations, id_prestations) VALUES (?, ?)", [id, prestation]);
-                }
-            }
-        }
-
+       
         if (!req) {
             return null;
         }
+        // Finalement, on retourne la réservation modifiée
         return getById(id);
     } 
 };
@@ -103,9 +87,9 @@ const remove = async (id) => {
 };
 
 const findUsersById = async (id) => {
-    const [ids_users, err] = await db.query("SELECT id_users FROM contacts WHERE id = ?", [id]);
+    const [ids_users, err] = await db.query("SELECT id_users FROM reservations WHERE id = ?", [id]);
     const users = [];
-    // pour chaque valeur des ids de users je selectionne l'id de l'utilisateur que je renvois
+
     for (let use of ids_users) {
         const user = await userController.getById(use.id_users);
         users.push(user);
@@ -113,9 +97,6 @@ const findUsersById = async (id) => {
     return users;
 };
 
-
-
-// On exporte toutes les fonctions écrites ici
 module.exports = {
     getAll,
     getById,

@@ -15,7 +15,8 @@ const getById = async (id) => {
   
     return prestation[0];
 };
-// fonction add pour ajouter une prestation
+ // Une fois un user ajouté en base, on appelle la fonction getById, créée plus haut, qui permet d'aller
+    // récupérer en base le user nouvellement créé, sans réécrire la fonction "SELECT * FROM users"
 const add = async (data) => {
 
     const [req, err] = await db.query("INSERT INTO prestations ( name, duration, price, max_people_number,description,image) VALUES (?,?,?,?,?,?)", 
@@ -29,13 +30,14 @@ const add = async (data) => {
 };
 
 // permet à l'administrateur de modifier une presatation
+// Pour update, on va d'abord chercher en base le user correspondant
 const update = async (id, data) => {
    
     const prestation = await getById(id);
     if (!prestation) {
         return null;
     } else {
-      
+       // On met à jour, en réécrivant les champs potentiellement manquant, grace au user récupéré
         const [req, err] = await db.query("UPDATE prestations SET name = ?, duration = ?, price=?, max_people_number=?, description=?, image=? WHERE id = ? LIMIT 1", 
         [
             data.name || prestation.name, 
@@ -49,11 +51,11 @@ const update = async (id, data) => {
         if (!req) {
             return null;
         }
+        // Finalement, on retourne le user modifié
         return getById(id);
     } 
 };
 // permet de supprimer une prestation
-
 const remove = async (id) => {
     const [req, err] = await db.query("DELETE FROM prestations WHERE id = ? LIMIT 1", [id]);
    

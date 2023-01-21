@@ -8,7 +8,7 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-    const [user, err] = await db.query("SELECT first_name,name,adresse,email,telephone  FROM users WHERE id = ?", [id]);
+    const [user, err] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
     if (!user || user.length == 0) {
         return null;
     }

@@ -6,20 +6,13 @@ const authValidator = require('../utils/auth');
 
 // l'administrateur pour consulter les infos de tous les utilisateurs
 router.route('/')
-    .get(async (req, res) => {
+    .get(authValidator.isAdmin(), async (req, res) => {
         const users = await userController.getAll();
         if (!users) {
             res.status(404).json();
         }
         res.status(200).json(users);
 
-        // if (req.auth.roles != "admin" && (users.id != req.auth.id)) {
-        //     res.status(403).json({message: "Il faut être administrateur pour consulter tous les utilisateurs"});
-        // } else if (!users) {
-        //     res.status(404).json();
-        // } else {
-        //     res.status(200).json(users);
-        // }
     })
 
 
@@ -36,22 +29,16 @@ router.route('/')
 
 
 router.route('/:id')
-    .get(async (req, res) => {
+    .get(authValidator.isAdmin(), async (req, res) => {
         const user = await userController.getById(req.params.id);
         if (!user) {
             res.status(404).json();
         }
         res.status(200).json(user);
        
-        // if (req.auth.roles != "admin" && (user.id != req.auth.id)) {
-        //     res.status(403).json({message: "ce n'est pas ton compte"});
-        // } else if (!user) {
-        //     res.status(404).json();
-        // } else {
-        //     res.status(200).json(user);
-        // }
+       
     })
-    .patch(async (req, res) => {
+    .patch(authValidator.isAuth(), async (req, res) => {
         const user = await userController.update(req.params.id, req.body);
         if (!user) {
             res.status(404).json();

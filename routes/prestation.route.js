@@ -24,9 +24,8 @@ router.route('/')
 
 ;
 
-
 router.route('/:id')
-    .get(async (req, res) => {
+    .get(authValidator.isAdmin(), async (req, res) => {
         const prestation = await prestationController.getById(req.params.id);
        
         if (!prestation) {
