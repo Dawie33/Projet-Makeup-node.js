@@ -14,9 +14,9 @@ router.route('/')
             res.status(200).json(reservation);
         
     })
-// j'utilise la méthode HTTP PUT
+// j'utilise la méthode HTTP POST 
 // je limite la possibilité de modifier uniquement aux personnes authentifiées grâce à mon middleware isAuth
-    .put(authValidator.isAuth(),async (req, res) => {
+    .post(authValidator.isAuth(),async (req, res) => {
 // j'appelle la fonction add définie dans mon controller en premier parametre je récupère les données saisies dans le body et en second l'id de l'utilisateur
         const new_reservation = await resaController.add(req.body,req.auth.id);
         if (!new_reservation) {

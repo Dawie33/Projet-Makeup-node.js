@@ -7,14 +7,9 @@ const routes = require('./routes');
 
 const app = express();
 
-var options = {
-    "origin": "*",
-    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-    "preflightContinue": false,
-    "optionsSuccessStatus": 204
-}
+
 app.use(morgan('dev'));
-app.use(cors(options));
+app.use(cors());
 app.use(express.json());
 app.use(config.basePath, routes);
 

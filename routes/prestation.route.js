@@ -13,7 +13,7 @@ router.route('/')
         res.status(200).json(prestations);
     })
 
-// l'ajouter de prestations est limité uniquement à l'admin
+// l'ajout de prestations est limité uniquement à l'admin
     .put(authValidator.isAdmin(),async (req, res) => {
         const new_prestation = await prestationController.add(req.body);
         if (!new_prestation) {

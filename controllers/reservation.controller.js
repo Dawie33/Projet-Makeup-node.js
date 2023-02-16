@@ -1,4 +1,4 @@
-
+const userController = require ('./user.controller');
 const db = require('../utils/db');
 
 
